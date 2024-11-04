@@ -106,6 +106,7 @@ const handleQuery = asyncHandler(async (req, res) => {
   const similarQuery = await findSimilarQuery(query);
   const trendingQuery = similarQuery || query; // Use the similar query if found
   await redisClient.zIncrBy("trendingQueries", 1, trendingQuery);
+  await redisClient.zRemRangeByRank("trendingQueries", 0, -101); // for now i am keeping 100 entries only in trending table
 
   if (!similarQuery) {
     const queryEmbedding = await getEmbedding(query);
