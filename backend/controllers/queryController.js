@@ -88,37 +88,8 @@ const generateAnswer = asyncHandler(async (query, searchResults) => {
   }
 });
 
-// async function findOrStoreQuery(query) {
-//   const threshold = 0.8; // Similarity threshold
-//   const newQueryEmbedding = await getEmbedding(query);
-
-//   // Retrieve all stored queries in Redis
-//   const existingQueries = await redisClient.zRange("trendingQueries", 0, -1);
-
-//   // Find the most similar query if it exists
-//   for (const storedQuery of existingQueries) {
-//     const storedEmbedding = JSON.parse(
-//       await redisClient.get(`embedding:${storedQuery}`)
-//     );
-//     const similarity = cosineSimilarity(newQueryEmbedding, storedEmbedding);
-
-//     if (similarity >= threshold) {
-//       // Increment the count for the similar query
-//       await redisClient.zIncrBy("trendingQueries", 1, storedQuery);
-//       return storedQuery;
-//     }
-//   }
-
-//   // If no similar query is found, store the new query with an initial count of 1
-//   await redisClient.zAdd("trendingQueries", { score: 1, value: query });
-
-//   // Store the embedding for future similarity checks
-//   await redisClient.set(
-//     `embedding:${query}`,
-//     JSON.stringify(newQueryEmbedding)
-//   );
-//   return query;
-// }
+// Find a similar query in the cache
+// Returns the similar query if found, otherwise null
 async function findSimilarQuery(query) {
   const threshold = 0.8;
   const queryEmbedding = await getEmbedding(query);
@@ -171,9 +142,11 @@ const handleQuery = asyncHandler(async (req, res) => {
   try {
     const searchResults = await performWebSearch(query);
     const answer = await generateAnswer(query, searchResults);
-    const sources = searchResults.map(
-      (result, index) => `${index + 1}. ${result.title}: ${result.link}`
-    );
+    const sources = searchResults.map((result, index) => ({
+      index: index,
+      title: result.title,
+      link: result.link,
+    }));
     const response = { query: query, answer: answer, sources: sources };
     await redisClient.setEx(query, 3600, JSON.stringify(response));
     res.json({ answer: response });

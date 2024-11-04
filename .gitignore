@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+
+# Build files
+dist/
+build/
+
+# Documentation files
+*.md
+docs/
+*.pdf
+*.docx
+*.txt
+
+# Logs
+*.log
+logs/
+
+# Environment and config files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code settings (if you use VS Code)
+.vscode/
