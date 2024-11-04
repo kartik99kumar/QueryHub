@@ -21,7 +21,7 @@ function App() {
     setPlaceholderQuery(query); // Set the last query as the placeholder
 
     axios
-      .post("/query", { query })
+      .post("https://queryhub-backend.onrender.com/query", { query })
       .then((response) => {
         setAnswerData(response.data.answer);
         setLoading(false);

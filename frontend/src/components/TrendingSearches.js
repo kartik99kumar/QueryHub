@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, ListGroup } from "react-bootstrap";
+import { Row, ListGroup } from "react-bootstrap";
 import axios from "axios";
 
 function TrendingSearches({ onSelect }) {
@@ -7,7 +7,7 @@ function TrendingSearches({ onSelect }) {
 
   useEffect(() => {
     axios
-      .get("/trending")
+      .get("https://queryhub-backend.onrender.com/trending")
       .then((response) => {
         setTrending(response.data || []); // Ensure trending is an array
       })
