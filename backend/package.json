@@ -13,15 +13,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@huggingface/inference": "^2.8.1",
-    "@llama-node/llama-cpp": "^0.1.6",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-async-handler": "^1.2.0",
-    "llama-node": "^0.1.6",
-    "node-cache": "^5.1.2",
-    "openai": "^4.70.2",
     "redis": "^4.7.0"
   }
 }
