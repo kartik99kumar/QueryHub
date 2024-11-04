@@ -52,10 +52,10 @@ function App() {
           </>
         )}
         {loading && (
-          <div className='d-flex flex-column align-items-center'>
+          <>
             <SearchBar onSearch={handleSearch} placeholder={placeholderQuery} />
             <LoadingSpinner message='Generating Response' />
-          </div>
+          </>
         )}
         {answerData && (
           <>
