@@ -45,13 +45,18 @@ function App() {
       <Header />
       <Container className='flex-grow-1 d-flex flex-column align-items-center justify-content-center'>
         {/* if no answer data then default page with trending queries */}
-        {!answerData && (
+        {!loading && !answerData && (
           <>
             <SearchBar onSearch={handleSearch} placeholder={placeholderQuery} />
             <TrendingSearches onSelect={handleTrendingSelect} />
           </>
         )}
-        {loading && <LoadingSpinner />}
+        {loading && (
+          <div className='d-flex flex-column align-items-center'>
+            <SearchBar onSearch={handleSearch} placeholder={placeholderQuery} />
+            <LoadingSpinner message='Generating Response' />
+          </div>
+        )}
         {answerData && (
           <>
             <div className='w-100 mt-3'>
