@@ -13,33 +13,38 @@ import "./App.css";
 function App() {
   const [answerData, setAnswerData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [placeholderQuery, setPlaceholderQuery] = useState(""); // Stores the query as a placeholder
+  const [placeholderQuery, setPlaceholderQuery] = useState("");
 
   const handleSearch = (query) => {
     setLoading(true);
     setAnswerData(null);
-    setPlaceholderQuery(query); // Set the last query as the placeholder
+    setPlaceholderQuery(query);
 
     axios
-      .post("https://queryhub-backend.onrender.com/query", { query })
+      .post(`${process.env.REACT_APP_BACKEND_ENDPOINT}/query`, { query })
       .then((response) => {
         setAnswerData(response.data.answer);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching answer:", error);
         setLoading(false);
       });
   };
 
-  const handleTrendingSelect = (query) => {
-    handleSearch(query);
+  const handleTrendingSelect = (query, response) => {
+    setPlaceholderQuery(query);
+    if (response) {
+      setAnswerData(response);
+    } else {
+      handleSearch(query);
+    }
   };
 
   return (
     <div className='d-flex flex-column min-vh-100 text-white'>
       <Header />
       <Container className='flex-grow-1 d-flex flex-column align-items-center justify-content-center'>
+        {/* if no answer data then default page with trending queries */}
         {!answerData && (
           <>
             <SearchBar onSearch={handleSearch} placeholder={placeholderQuery} />

@@ -7,13 +7,12 @@ function TrendingSearches({ onSelect }) {
 
   useEffect(() => {
     axios
-      .get("https://queryhub-backend.onrender.com/trending")
+      .get(`${process.env.REACT_APP_BACKEND_ENDPOINT}/trending`)
       .then((response) => {
-        setTrending(response.data || []); // Ensure trending is an array
+        setTrending(response.data || []);
       })
       .catch((error) => {
-        console.error("Unable to retrieve trending searches", error);
-        setTrending([]); // Fallback to an empty array on error
+        setTrending([]);
       });
   }, []);
 
@@ -26,7 +25,7 @@ function TrendingSearches({ onSelect }) {
               <ListGroup.Item
                 key={index}
                 action
-                onClick={() => onSelect(item.query)}
+                onClick={() => onSelect(item.query, item.response)}
                 className='trending-item d-flex justify-content-center align-items-center text-center'>
                 {item.query}
               </ListGroup.Item>
