@@ -8,10 +8,6 @@ const client = createClient({
   },
 });
 
-client.on("error", (error) => {
-  console.error("Redis error:", error);
-});
-
 (async () => {
   try {
     await client.connect();

@@ -11,13 +11,13 @@ import trendingRouter from "./routes/trending.js";
 
 app.use(
   cors({
-    origin: "https://queryhub.onrender.com", // deployed frontend URL
+    origin: process.env.FRONTEND_URL,
   })
 );
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Response from server");
+  res.send("Response from backend server");
 });
 
 app.use("/query", queryRouter);

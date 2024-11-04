@@ -1,4 +1,3 @@
-// This file does a cool thing as I have explained simply below:
 // Idea: Various queries may have different texts but same meaning, so we use cohere ai here for
 // another job, i.e. to get embeddings of the text and then compare the embeddings to get the
 // similarity between the texts. This way we can group similar queries.
@@ -24,16 +23,12 @@ async function getEmbedding(text) {
 
     return response.data.embeddings[0];
   } catch (error) {
-    console.error(
-      "Error fetching embedding:",
-      error.response?.data || error.message
-    );
     throw new Error("Failed to fetch embedding.");
   }
 }
 
 // Calculate the cosine similarity between two vectors
-// Not my idea but I have seen people use it to compare the embeddings.
+// Not my idea but it is a common way.
 function cosineSimilarity(vec1, vec2) {
   const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
   const magnitudeA = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));

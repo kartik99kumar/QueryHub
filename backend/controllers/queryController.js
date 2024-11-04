@@ -26,14 +26,9 @@ const performWebSearch = asyncHandler(async (query) => {
       info: result.description,
     }));
   } catch (error) {
-    console.error(
-      "Error querying Brave Search API:",
-      error.response?.data || error.message
-    );
     if (error.response?.status == 429) {
-      console.log("Rate Limit Exceeded");
       throw new Error(
-        "Search API Rate Limit Exceeded. Please try again later."
+        "Brave Search API Rate Limit Exceeded. Please try again later."
       );
     }
     throw new Error(
@@ -46,20 +41,17 @@ const performWebSearch = asyncHandler(async (query) => {
 // Returns a summary of the search results
 const generateAnswer = asyncHandler(async (query, searchResults) => {
   const apiKey = process.env.COHERE_API_KEY;
-  // Combine snippets from search results to form the context for the prompt
   const context = searchResults.map((result) => result.info).join("\n\n");
-  //   console.log("Context:", context);
   const prompt = `Answer the query \"${query}\" using the context: \"${context}\"\n\n`;
 
   try {
     const response = await axios.post(
-      process.env.COHERE_API_ENDPOINT || "https://api.cohere.ai/v2/generate",
+      process.env.COHERE_API_ENDPOINT,
       {
         prompt: prompt,
         max_tokens: 100,
-        temperature: 0.7, // using high value for more creative responses
+        temperature: 0.7,
         model: "command",
-        // citation_options: "accurate", // not enough money to enable this ;_; will generate myself
       },
       {
         headers: {
@@ -68,33 +60,26 @@ const generateAnswer = asyncHandler(async (query, searchResults) => {
         },
       }
     );
-    // console.log("Generated Response:", response.data.generations[0].text);
     const summary = response.data.generations[0].text;
     if (!summary) {
       throw new Error("Failed to generate a response");
     }
     return summary.trim();
   } catch (error) {
-    console.error(
-      "Error querying Cohere API:",
-      error.response?.data || error.message
-    );
     if (error.response?.status === 429) {
       throw new Error(
-        "Answer generation rate limit exceeded. Please try again later."
+        "Cohere API Rate Limit Exceeded. Please try again later."
       );
     }
     throw new Error("Failed to generate an answer. Please try again.");
   }
 });
 
-// Find a similar query in the cache
+// Find a similar query for a given query in Redis cache
 // Returns the similar query if found, otherwise null
 async function findSimilarQuery(query) {
-  const threshold = 0.8;
+  const threshold = 0.8; // we can adjust this for more or less strict similarity
   const queryEmbedding = await getEmbedding(query);
-
-  // Retrieve all trending queries from Redis
   const existingQueries = await redisClient.zRange("trendingQueries", 0, -1);
 
   for (const storedQuery of existingQueries) {
@@ -102,14 +87,12 @@ async function findSimilarQuery(query) {
       await redisClient.get(`embedding:${storedQuery}`)
     );
     const similarity = cosineSimilarity(queryEmbedding, storedEmbedding);
-
     if (similarity >= threshold) {
       console.log("Found similar query:", storedQuery);
       return storedQuery;
     }
   }
-
-  return null; // No similar query found
+  return null;
 }
 
 // Handle a query request
@@ -120,14 +103,10 @@ const handleQuery = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "Query is required" });
   }
 
-  // Normalize the query and check for similar queries
   const similarQuery = await findSimilarQuery(query);
   const trendingQuery = similarQuery || query; // Use the similar query if found
-
-  // Increment the count for the similar query (or the current query if no match found)
   await redisClient.zIncrBy("trendingQueries", 1, trendingQuery);
 
-  // Cache the embedding of the new query if no similar query was found
   if (!similarQuery) {
     const queryEmbedding = await getEmbedding(query);
     await redisClient.set(`embedding:${query}`, JSON.stringify(queryEmbedding));
@@ -135,7 +114,6 @@ const handleQuery = asyncHandler(async (req, res) => {
 
   const cachedResult = await redisClient.get(query);
   if (cachedResult) {
-    console.log("Serving from Redis cache.");
     return res.json({ answer: JSON.parse(cachedResult) });
   }
 
@@ -151,7 +129,6 @@ const handleQuery = asyncHandler(async (req, res) => {
     await redisClient.setEx(query, 3600, JSON.stringify(response));
     res.json({ answer: response });
   } catch (error) {
-    console.error("Error handling query:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
