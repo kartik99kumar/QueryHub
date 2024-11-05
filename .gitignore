@@ -6,7 +6,6 @@ dist/
 build/
 
 # Documentation files
-*.md
 docs/
 *.pdf
 *.docx
