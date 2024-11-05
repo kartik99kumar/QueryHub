@@ -15,6 +15,8 @@
 
 The tool is hosted and deployed using **Render web service** and can be accessed here: https://queryhub.onrender.com/
 
+> Caveat: The site is hosted on Render free plan for developers. If not used for some time, it will shutdown automatically and takes upto 50s to come back up (both the site and backend service). Once up it will provide a seamless experience.
+
 > You can clone the repo and try to run the web app locally using Node.js (v14+) but you would require your own API keys and secrets placed in your own .env file.
 
 ## Deployment
